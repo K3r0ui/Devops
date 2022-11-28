@@ -1,0 +1,51 @@
+version: "2.2"
+
+services:
+  petclinic1:
+    depends_on:
+      - mysql1
+    image: spring/petclinic:3.7.0
+    environment:
+      - SPRING.PROFILES.ACTIVE=mysql
+      - SPRING.DATASOURCE.URL=jdbc:mysql://mysql1/petclinic
+    ports: 
+      - "8080:8080"
+    networks:
+      - network1
+  mysql1:
+    image: mysql
+    environment:
+      - MYSQL_DATABASE=petclinic
+      - MYSQL_USER=petclinic
+      - MYSQL_ROOT_PASSWORD=petclinic
+      - MYSQL_PASSWORD=petclinic
+    networks:
+      - network1
+  petclinic2:
+    depends_on:
+      mysql2:
+       condition: service_healthy
+    image: spring/petclinic:3.7.0
+    environment:
+      - SPRING.PROFILES.ACTIVE=mysql
+      - SPRING.DATASOURCE.URL=jdbc:mysql://mysql2/petclinic
+    ports: 
+      - "8081:8080"
+    networks:
+      - network2
+  mysql2:
+    image: mysql
+    environment:
+      - MYSQL_DATABASE=petclinic
+      - MYSQL_USER=petclinic
+      - MYSQL_ROOT_PASSWORD=petclinic
+      - MYSQL_PASSWORD=petclinic
+    networks:
+      - network2
+    healthcheck:
+      test: ["CMD","mysqladmin","ping","-h","localhost"]
+networks:
+    network1: {}
+    network2: {}
+
+
